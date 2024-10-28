@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Test.Models;
 
 namespace Test.Data
 {
@@ -9,5 +10,6 @@ namespace Test.Data
             : base(options)
         {
         }
+        public DbSet<User> User { get; set; }
     }
 }
