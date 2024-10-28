@@ -21,12 +21,40 @@ namespace Test.Controllers
               _userManager = userManager;
          }
 
-            // GET: Users
-             public async Task<IActionResult> Index()
-              {
-                   var users = await _userManager.Users.ToListAsync();
-                   return View(users);
-               }
+         // GET: Users
+          public async Task<IActionResult> Index()
+          {
+                var users = await _userManager.Users.ToListAsync();
+                return View(users);
+          }
+
+        // GET: Users/Create
+        public IActionResult Create()
+        {
+            return View(new IdentityUser());
+        }
+
+        // POST: Users/Create
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create([Bind("UserName,Email,PasswordHash")] IdentityUser user)
+        {
+            if (ModelState.IsValid)
+            {
+                var result = await _userManager.CreateAsync(user, user.PasswordHash);
+
+                if (result.Succeeded)
+                {
+                    return RedirectToAction(nameof(Index));
+                }
+
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, error.Description);
+                }
+            }
+            return View(user);
+        }
     }
 }
 
