@@ -1,0 +1,45 @@
+﻿@model IEnumerable<IdentityUser>
+@using Microsoft.AspNetCore.Identity
+
+@{
+    ViewData["Title"] = "Users";
+}
+
+<h1>Users</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>@Html.DisplayNameFor(model => model.UserName)</th>
+            <th>@Html.DisplayNameFor(model => model.Email)</th>
+            <th>@Html.DisplayNameFor(model => model.EmailConfirmed)</th>
+            <th>@Html.DisplayNameFor(model => model.PhoneNumber)</th>
+            <th>@Html.DisplayNameFor(model => model.TwoFactorEnabled)</th>
+            <th>@Html.DisplayNameFor(model => model.LockoutEnabled)</th>
+            <th>@Html.DisplayNameFor(model => model.AccessFailedCount)</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var user in Model)
+    {
+        <tr>
+            <td>@Html.DisplayFor(modelItem => user.UserName)</td>
+            <td>@Html.DisplayFor(modelItem => user.Email)</td>
+            <td>@Html.DisplayFor(modelItem => user.EmailConfirmed)</td>
+            <td>@Html.DisplayFor(modelItem => user.PhoneNumber)</td>
+            <td>@Html.DisplayFor(modelItem => user.TwoFactorEnabled)</td>
+            <td>@Html.DisplayFor(modelItem => user.LockoutEnabled)</td>
+            <td>@Html.DisplayFor(modelItem => user.AccessFailedCount)</td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@user.Id">Edit</a> |
+                <a asp-action="Details" asp-route-id="@user.Id">Details</a> |
+                <a asp-action="Delete" asp-route-id="@user.Id">Delete</a>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
