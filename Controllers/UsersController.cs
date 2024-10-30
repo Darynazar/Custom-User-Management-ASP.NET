@@ -15,14 +15,74 @@ namespace Test.Controllers
     public class UsersController : Controller
     {
        private readonly UserManager<IdentityUser> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
 
-         public UsersController(UserManager<IdentityUser> userManager)
-         {
-              _userManager = userManager;
-         }
+        public UsersController(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager)
+        {
+            _userManager = userManager;
+            _roleManager = roleManager;
+        }
 
-         // GET: Users
-          public async Task<IActionResult> Index()
+        // Method to display roles for a user
+        public async Task<IActionResult> ManageRoles(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            var userRoles = await _userManager.GetRolesAsync(user);
+            var allRoles = _roleManager.Roles.ToList();
+
+            var model = new ManageUserRolesViewModel
+            {
+                UserId = user.Id,
+                UserName = user.UserName,
+                Roles = allRoles.Select(role => new UserRoleViewModel
+                {
+                    RoleName = role.Name,
+                    IsSelected = userRoles.Contains(role.Name)
+                }).ToList()
+            };
+
+            return View(model);
+        }
+
+        // Method to update roles for a user
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateRoles(ManageUserRolesViewModel model)
+        {
+            var user = await _userManager.FindByIdAsync(model.UserId);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            var userRoles = await _userManager.GetRolesAsync(user);
+            var selectedRoles = model.Roles.Where(x => x.IsSelected).Select(y => y.RoleName).ToList();
+            var result = await _userManager.AddToRolesAsync(user, selectedRoles.Except(userRoles));
+
+            if (!result.Succeeded)
+            {
+                ModelState.AddModelError("", "Failed to add roles");
+                return View(model);
+            }
+
+            result = await _userManager.RemoveFromRolesAsync(user, userRoles.Except(selectedRoles));
+
+            if (!result.Succeeded)
+            {
+                ModelState.AddModelError("", "Failed to remove roles");
+                return View(model);
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        // GET: Users
+        public async Task<IActionResult> Index()
           {
                 var users = await _userManager.Users.ToListAsync();
                 return View(users);
