@@ -61,21 +61,29 @@ namespace Test.Controllers
             }
 
             var userRoles = await _userManager.GetRolesAsync(user);
-            var selectedRoles = model.Roles.Where(x => x.IsSelected).Select(y => y.RoleName).ToList();
-            var result = await _userManager.AddToRolesAsync(user, selectedRoles.Except(userRoles));
+            var selectedRoles = model.Roles.Where(x => x.IsSelected).Select(y => y.RoleName).Where(r => !string.IsNullOrEmpty(r)).ToList();
 
-            if (!result.Succeeded)
+            var rolesToAdd = selectedRoles.Except(userRoles).ToList();
+            var rolesToRemove = userRoles.Except(selectedRoles).ToList();
+
+            if (rolesToAdd.Any())
             {
-                ModelState.AddModelError("", "Failed to add roles");
-                return View(model);
+                var addResult = await _userManager.AddToRolesAsync(user, rolesToAdd);
+                if (!addResult.Succeeded)
+                {
+                    ModelState.AddModelError("", "Failed to add roles");
+                    return View(model);
+                }
             }
 
-            result = await _userManager.RemoveFromRolesAsync(user, userRoles.Except(selectedRoles));
-
-            if (!result.Succeeded)
+            if (rolesToRemove.Any())
             {
-                ModelState.AddModelError("", "Failed to remove roles");
-                return View(model);
+                var removeResult = await _userManager.RemoveFromRolesAsync(user, rolesToRemove);
+                if (!removeResult.Succeeded)
+                {
+                    ModelState.AddModelError("", "Failed to remove roles");
+                    return View(model);
+                }
             }
 
             return RedirectToAction(nameof(Index));
