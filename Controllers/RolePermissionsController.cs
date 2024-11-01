@@ -49,27 +49,65 @@ namespace Test.Controllers
         // GET: RolePermissions/Create
         public IActionResult Create()
         {
-            ViewData["PermissionId"] = new SelectList(_context.Permissions, "Id", "Id");
-            ViewData["RoleId"] = new SelectList(_context.Roles, "Id", "Id");
+            ViewData["PermissionId"] = new SelectList(_context.Permissions, "Id", "Name");
+            ViewData["RoleId"] = new SelectList(_context.Roles, "Id", "Name");
             return View();
         }
+
 
         // POST: RolePermissions/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("RoleId,PermissionId")] RolePermission rolePermission)
+        public async Task<IActionResult> Create(string roleId, string permissionId)
         {
-            if (ModelState.IsValid)
+            if (string.IsNullOrEmpty(roleId) || string.IsNullOrEmpty(permissionId))
             {
-                _context.Add(rolePermission);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                ModelState.AddModelError("", "Role and Permission must be selected.");
             }
-            ViewData["PermissionId"] = new SelectList(_context.Permissions, "Id", "Id", rolePermission.PermissionId);
-            ViewData["RoleId"] = new SelectList(_context.Roles, "Id", "Id", rolePermission.RoleId);
-            return View(rolePermission);
+            else
+            {
+                // Check if the role and permission exist
+                var role = await _context.Roles.FindAsync(roleId);
+
+                // Convert permissionId to int before finding the permission
+                if (int.TryParse(permissionId, out int permId))
+                {
+                    var permission = await _context.Permissions.FindAsync(permId);
+
+                    if (role == null)
+                    {
+                        ModelState.AddModelError("RoleId", "Selected role does not exist.");
+                    }
+                    if (permission == null)
+                    {
+                        ModelState.AddModelError("PermissionId", "Selected permission does not exist.");
+                    }
+
+                    if (ModelState.IsValid) // Proceed only if ModelState is valid
+                    {
+                        var rolePermission = new RolePermission
+                        {
+                            RoleId = roleId,
+                            PermissionId = permId // Use the parsed permission ID
+                        };
+
+                        _context.Add(rolePermission);
+                        await _context.SaveChangesAsync();
+                        return RedirectToAction(nameof(Index));
+                    }
+                }
+                else
+                {
+                    ModelState.AddModelError("PermissionId", "Invalid permission ID.");
+                }
+            }
+
+            // If we got this far, something failed, redisplay form
+            ViewData["PermissionId"] = new SelectList(_context.Permissions, "Id", "Name");
+            ViewData["RoleId"] = new SelectList(_context.Roles, "Id", "Name");
+            return View();
         }
 
         // GET: RolePermissions/Edit/5
