@@ -165,10 +165,10 @@ namespace Test.Controllers
             return View(rolePermission);
         }
 
-        // GET: RolePermissions/Delete/5
-        public async Task<IActionResult> Delete(string id)
+        // GET: RolePermissions/Delete
+        public async Task<IActionResult> Delete(string roleId, int permissionId)
         {
-            if (id == null)
+            if (roleId == null || permissionId == 0)
             {
                 return NotFound();
             }
@@ -176,7 +176,7 @@ namespace Test.Controllers
             var rolePermission = await _context.RolePermissions
                 .Include(r => r.Permission)
                 .Include(r => r.Role)
-                .FirstOrDefaultAsync(m => m.RoleId == id);
+                .FirstOrDefaultAsync(m => m.RoleId == roleId && m.PermissionId == permissionId);
             if (rolePermission == null)
             {
                 return NotFound();
@@ -185,20 +185,21 @@ namespace Test.Controllers
             return View(rolePermission);
         }
 
-        // POST: RolePermissions/Delete/5
+        // POST: RolePermissions/Delete
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(string id)
+        public async Task<IActionResult> DeleteConfirmed(string roleId, int permissionId)
         {
-            var rolePermission = await _context.RolePermissions.FindAsync(id);
+            var rolePermission = await _context.RolePermissions
+                .FirstOrDefaultAsync(rp => rp.RoleId == roleId && rp.PermissionId == permissionId);
             if (rolePermission != null)
             {
                 _context.RolePermissions.Remove(rolePermission);
+                await _context.SaveChangesAsync();
             }
-
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
+
 
         private bool RolePermissionExists(string id)
         {

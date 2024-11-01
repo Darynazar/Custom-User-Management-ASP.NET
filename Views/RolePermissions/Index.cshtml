@@ -13,29 +13,28 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Role)
+                @Html.DisplayNameFor(model => model.First().Role) <!-- Change to display role name -->
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Permission)
+                @Html.DisplayNameFor(model => model.First().Permission) <!-- Change to display permission name -->
             </th>
             <th></th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Role.Id)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Permission.Id)
-            </td>
-            <td>
-                @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
-                @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
-                @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Role.Name) <!-- Display Role Name -->
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Permission.Name) <!-- Display Permission Name -->
+                </td>
+                <td>
+                    @Html.ActionLink("Delete", "Delete", new { roleId = item.RoleId, permissionId = item.PermissionId })
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
