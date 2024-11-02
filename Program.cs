@@ -20,8 +20,12 @@ builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("CanViewUser", policy =>
         policy.RequireClaim("Permission", "User.View"));
-    options.AddPolicy("CanEditUser", policy =>
-        policy.RequireClaim("Permission", "User.Edit"));
+    options.AddPolicy("CanCreateUsers", policy =>
+        policy.RequireClaim("Permission", "Create.User"));
+    options.AddPolicy("CanEditUsers", policy =>
+        policy.RequireClaim("Permission", "Edit.User"));
+    options.AddPolicy("CanDeleteUsers", policy =>
+        policy.RequireClaim("Permission", "Delete.User"));
 });
 
 

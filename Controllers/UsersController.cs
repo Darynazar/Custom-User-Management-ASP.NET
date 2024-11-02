@@ -129,6 +129,7 @@ namespace Test.Controllers
         // POST: Users/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Policy = "CanCreateUsers")]
         public async Task<IActionResult> Create([Bind("UserName,Email,PasswordHash")] IdentityUser user)
         {
             if (ModelState.IsValid)
@@ -165,6 +166,7 @@ namespace Test.Controllers
             }
 
             // GET: Users/Edit/5
+            [Authorize(Policy = "CanEditUsers")]
             public async Task<IActionResult> Edit(string id)
             {
                 if (id == null)
@@ -219,6 +221,7 @@ namespace Test.Controllers
             }
 
             // GET: Users/Delete/5
+            [Authorize(Policy = "CanDeleteUsers")]
             public async Task<IActionResult> Delete(string id)
             {
                 if (id == null)
