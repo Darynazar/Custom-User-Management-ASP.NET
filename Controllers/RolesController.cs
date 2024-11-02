@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Test.Data;
 using Test.Models;
+using System.Security.Claims;
 
 
 namespace Test.Controllers
@@ -20,6 +21,27 @@ namespace Test.Controllers
         {
             _roleManager = roleManager;
         }
+
+        public async Task<IActionResult> AddClaimToRole(string roleId, string claimType, string claimValue)
+        {
+            var role = await _roleManager.FindByIdAsync(roleId);
+            if (role == null)
+            {
+                return NotFound();
+            }
+
+            var claim = new Claim(claimType, claimValue);
+            var result = await _roleManager.AddClaimAsync(role, claim);
+
+            if (result.Succeeded)
+            {
+                return RedirectToAction(nameof(Index));
+            }
+
+            ModelState.AddModelError("", "Error adding claim to role");
+            return View();
+        }
+
 
         // GET: Roles
         public IActionResult Index()
