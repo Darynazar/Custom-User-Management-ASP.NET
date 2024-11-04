@@ -14,6 +14,7 @@ namespace Test.Data
         public DbSet<Permission> Permissions { get; set; }
         public DbSet<RolePermission> RolePermissions { get; set; }
         public DbSet<Category> Categories { get; set; }
+        public DbSet<Letter> Letters { get; set; }
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
@@ -23,6 +24,7 @@ namespace Test.Data
             base.OnModelCreating(builder);
 
             new CategoryConfiguration().Configure(builder.Entity<Category>());
+            new LetterConfiguration().Configure(builder.Entity<Letter>());
 
             builder.Entity<RolePermission>()
                 .HasKey(rp => new { rp.RoleId, rp.PermissionId });
