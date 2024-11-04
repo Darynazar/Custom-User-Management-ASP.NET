@@ -9,6 +9,8 @@ using Test.Data;
 using Test.Models;
 using Microsoft.AspNetCore.Identity;
 using System.Threading.Tasks;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Test.Controllers
 {
@@ -89,7 +91,29 @@ namespace Test.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        public async Task<IActionResult> AddClaimToUser(string userId, string claimType, string claimValue)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            var claim = new Claim(claimType, claimValue);
+            var result = await _userManager.AddClaimAsync(user, claim);
+
+            if (result.Succeeded)
+            {
+                return RedirectToAction(nameof(Index));
+            }
+
+            ModelState.AddModelError("", "Error adding claim to user");
+            return View();
+        }
+
+
         // GET: Users
+        [Authorize(Policy = "CanViewUser")]
         public async Task<IActionResult> Index()
           {
                 var users = await _userManager.Users.ToListAsync();
@@ -105,6 +129,7 @@ namespace Test.Controllers
         // POST: Users/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Policy = "CanCreateUsers")]
         public async Task<IActionResult> Create([Bind("UserName,Email,PasswordHash")] IdentityUser user)
         {
             if (ModelState.IsValid)
@@ -141,6 +166,7 @@ namespace Test.Controllers
             }
 
             // GET: Users/Edit/5
+            [Authorize(Policy = "CanEditUsers")]
             public async Task<IActionResult> Edit(string id)
             {
                 if (id == null)
@@ -195,6 +221,7 @@ namespace Test.Controllers
             }
 
             // GET: Users/Delete/5
+            [Authorize(Policy = "CanDeleteUsers")]
             public async Task<IActionResult> Delete(string id)
             {
                 if (id == null)

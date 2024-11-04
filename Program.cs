@@ -16,6 +16,19 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.Requ
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("CanViewUser", policy =>
+        policy.RequireClaim("Permission", "User.View"));
+    options.AddPolicy("CanCreateUsers", policy =>
+        policy.RequireClaim("Permission", "Create.User"));
+    options.AddPolicy("CanEditUsers", policy =>
+        policy.RequireClaim("Permission", "Edit.User"));
+    options.AddPolicy("CanDeleteUsers", policy =>
+        policy.RequireClaim("Permission", "Delete.User"));
+});
+
+
 // Add Razor Pages support
 builder.Services.AddRazorPages();
 builder.Services.AddControllersWithViews();
