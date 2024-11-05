@@ -8,6 +8,9 @@ using Microsoft.EntityFrameworkCore;
 using Test.Data;
 using Test.Models;
 using Microsoft.AspNetCore.Authorization;
+using SelectPdf;
+using Microsoft.AspNetCore.Mvc.ViewEngines;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 
 namespace Test.Controllers
 {
@@ -15,10 +18,67 @@ namespace Test.Controllers
     public class LettersController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly ICompositeViewEngine _viewEngine;
+        private readonly IServiceProvider _serviceProvider;
 
-        public LettersController(ApplicationDbContext context)
+        public LettersController(ApplicationDbContext context, ICompositeViewEngine viewEngine, IServiceProvider serviceProvider)
         {
             _context = context;
+            _viewEngine = viewEngine;
+            _serviceProvider = serviceProvider;
+        }
+
+
+        public async Task<IActionResult> ExportToPdf(int id)
+        {
+            var letter = await _context.Letters
+                .Include(l => l.Category)
+                .Include(l => l.User)
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            if (letter == null)
+            {
+                return NotFound();
+            }
+
+            // Render the view to a string
+            var htmlContent = await RenderViewToStringAsync("OfficialLetter", letter);
+
+            // Convert HTML to PDF
+            HtmlToPdf converter = new HtmlToPdf();
+            PdfDocument doc = converter.ConvertHtmlString(htmlContent);
+
+            // Save to a byte array
+            byte[] pdf = doc.Save();
+
+            // Close the document
+            doc.Close();
+
+            // Return the PDF file
+            return File(pdf, "application/pdf", "OfficialLetter.pdf");
+        }
+
+        private async Task<string> RenderViewToStringAsync(string viewName, object model)
+        {
+            ViewData.Model = model;
+            using (var writer = new StringWriter())
+            {
+                var viewResult = _viewEngine.FindView(ControllerContext, viewName, false);
+                if (viewResult.View == null)
+                {
+                    throw new ArgumentNullException($"{viewName} does not match any available view");
+                }
+                var viewContext = new ViewContext(
+                    ControllerContext,
+                    viewResult.View,
+                    ViewData,
+                    TempData,
+                    writer,
+                    new HtmlHelperOptions()
+                );
+                await viewResult.View.RenderAsync(viewContext);
+                return writer.GetStringBuilder().ToString();
+            }
         }
 
         // GET: Letters

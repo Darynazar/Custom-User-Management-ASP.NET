@@ -1,0 +1,45 @@
+﻿@model Test.Models.Letter
+
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        .letterhead {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .letter-content {
+            margin: 0 20px;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="letterhead">
+        <h1>Official Letterhead</h1>
+        <p>Organization Name</p>
+        <p>Date: @DateTime.Now.ToString("MMMM dd, yyyy")</p>
+    </div>
+    <div class="letter-content">
+        <h2>@Model.Title</h2>
+        <p><strong>Subject:</strong> @Model.Subject</p>
+        <p><strong>From:</strong> @Model.Sender</p>
+        <p><strong>To:</strong> @Model.Receiver</p>
+        <p><strong>Organization:</strong> @Model.CurrentOrganization</p>
+        <p><strong>Description:</strong> @Model.Description</p>
+    </div>
+    <div class="footer">
+        <p>Confidential</p>
+    </div>
+</body>
+</html>
