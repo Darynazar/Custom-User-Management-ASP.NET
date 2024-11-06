@@ -18,4 +18,6 @@ public class Category
     public virtual Category? ParentCategory { get; set; }  // Self-referencing relationship
 
     public virtual ICollection<Category> ChildCategories { get; set; } = new List<Category>();  // Collection for child categories
+
+    public ICollection<UserCategory> UserCategories { get; set; }
 }

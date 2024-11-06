@@ -1,0 +1,73 @@
+﻿@model Test.Models.Letter
+
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            max-width: 800px; /* Set this to the footer image's width */
+            margin: 0 auto;
+        }
+
+        .letterhead {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+            .letterhead img {
+                max-height: 100px;
+            }
+
+        .letter-content {
+            margin: 0 20px;
+        }
+
+        .vertical-text {
+            font-size: 12px;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 12px;
+        }
+
+            .footer img {
+                width: 100%;
+                height: auto;
+            }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="letterhead">
+            <img src="/logo/logo.png" alt="Logo" />
+            <div>
+                <img src="/logo/god_name.png" alt="God Name" />
+            </div>
+            <div class="vertical-text">
+                Letter No: @Model.Id<br />
+                Date: @DateTime.Now.ToString("MMMM dd, yyyy")
+            </div>
+        </div>
+        <div class="letter-content">
+            <h2>@Model.Title</h2>
+            <p><strong>Subject:</strong> @Model.Subject</p>
+            <p><strong>From:</strong> @Model.Sender</p>
+            <p><strong>To:</strong> @Model.Receiver</p>
+            <p><strong>Organization:</strong> @Model.CurrentOrganization</p>
+            <p><strong>Description:</strong> @Model.Description</p>
+        </div>
+        <div class="footer">
+            <img src="/logo/footer.png" alt="Footer" />
+            <p>Confidential</p>
+        </div>
+    </div>
+</body>
+</html>
