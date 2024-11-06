@@ -26,6 +26,7 @@
 
         .letter-content {
             margin: 0 20px;
+            direction: rtl;
         }
 
         .vertical-text {
@@ -38,10 +39,13 @@
             font-size: 12px;
         }
 
-            .footer img {
-                width: 100%;
-                height: auto;
-            }
+       .footer img {
+            width: 100%;
+            height: auto;
+        }
+        .h2text {
+          text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -57,12 +61,12 @@
             </div>
         </div>
         <div class="letter-content">
-            <h2>@Model.Title</h2>
-            <p><strong>Subject:</strong> @Model.Subject</p>
-            <p><strong>From:</strong> @Model.Sender</p>
-            <p><strong>To:</strong> @Model.Receiver</p>
-            <p><strong>Organization:</strong> @Model.CurrentOrganization</p>
-            <p><strong>Description:</strong> @Model.Description</p>
+            <h2 class="h2text">@Model.Title</h2>
+            <p><strong>موضوع:</strong> @Model.Subject</p>
+            <p><strong>از:</strong> @Model.Sender</p>
+            <p><strong>به:</strong> @Model.Receiver</p>
+            <p><strong>کارشناس:</strong> @Model.CurrentOrganization</p>
+            <p><strong>نوضیحات:</strong> @Model.Description</p>
         </div>
         <div class="footer">
             <img src="/logo/footer.png" alt="Footer" />
