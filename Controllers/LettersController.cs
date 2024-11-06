@@ -81,6 +81,22 @@ namespace Test.Controllers
             }
         }
 
+        // GET: Letters/Display/5
+        public async Task<IActionResult> Display(int id)
+        {
+            var letter = await _context.Letters
+                .Include(l => l.Category)
+                .Include(l => l.User)
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            if (letter == null)
+            {
+                return NotFound();
+            }
+
+            return View(letter);
+        }
+
         // GET: Letters
         public async Task<IActionResult> Index()
         {

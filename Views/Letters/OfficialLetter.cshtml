@@ -9,12 +9,24 @@
         }
 
         .letterhead {
-            text-align: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 20px;
+        }
+
+        .letterhead img {
+            max-height: 100px;
         }
 
         .letter-content {
             margin: 0 20px;
+        }
+
+        .vertical-text {
+            writing-mode: vertical-rl;
+            transform: rotate(180deg);
+            font-size: 12px;
         }
 
         .footer {
@@ -22,13 +34,23 @@
             margin-top: 20px;
             font-size: 12px;
         }
+
+        .footer img {
+            max-width: 100%;
+            height: auto;
+        }
     </style>
 </head>
 <body>
     <div class="letterhead">
-        <h1>Official Letterhead</h1>
-        <p>Organization Name</p>
-        <p>Date: @DateTime.Now.ToString("MMMM dd, yyyy")</p>
+        <img src="~/logo/logo.png" alt="Logo" />
+        <div>
+            <img src="~/logo/god_name.png" alt="God Name" />
+        </div>
+        <div class="vertical-text">
+            Letter No: @Model.Id<br />
+            Date: @DateTime.Now.ToString("MMMM dd, yyyy")
+        </div>
     </div>
     <div class="letter-content">
         <h2>@Model.Title</h2>
@@ -39,6 +61,7 @@
         <p><strong>Description:</strong> @Model.Description</p>
     </div>
     <div class="footer">
+        <img src="~/logo/footer.png" alt="Footer" />
         <p>Confidential</p>
     </div>
 </body>
