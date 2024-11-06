@@ -9,7 +9,7 @@
         }
 
         .container {
-            max-width: 800px; /* Set this to the footer image's width */
+            max-width: 800px;
             margin: 0 auto;
         }
 
@@ -33,18 +33,29 @@
             font-size: 12px;
         }
 
+        .signature {
+            text-align: left;
+            margin: 20px 20px;
+        }
+
+            .signature img {
+                max-height: 50px;
+                vertical-align: middle;
+            }
+
         .footer {
             text-align: center;
             margin-top: 20px;
             font-size: 12px;
         }
 
-       .footer img {
-            width: 100%;
-            height: auto;
-        }
+            .footer img {
+                width: 100%;
+                height: auto;
+            }
+
         .h2text {
-          text-align: center;
+            text-align: center;
         }
     </style>
 </head>
@@ -67,6 +78,11 @@
             <p><strong>به:</strong> @Model.Receiver</p>
             <p><strong>کارشناس:</strong> @Model.CurrentOrganization</p>
             <p><strong>نوضیحات:</strong> @Model.Description</p>
+        </div>
+        <div class="signature">
+            
+            <img src="/logo/signature.png" alt="Signature" />
+            <strong>:امضا</strong>
         </div>
         <div class="footer">
             <img src="/logo/footer.png" alt="Footer" />
