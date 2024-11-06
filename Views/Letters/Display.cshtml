@@ -1,4 +1,5 @@
-﻿@model Test.Models.Letter
+﻿@using System.Globalization
+@model Test.Models.Letter
 
 <!DOCTYPE html>
 <html>
@@ -68,7 +69,15 @@
             </div>
             <div class="vertical-text">
                 Letter No: @Model.Id<br />
-                Date: @DateTime.Now.ToString("MMMM dd, yyyy")
+                @{
+                    // Get the current date in Persian calendar
+                    PersianCalendar persianCalendar = new PersianCalendar();
+                    int year = persianCalendar.GetYear(DateTime.Now);
+                    int month = persianCalendar.GetMonth(DateTime.Now);
+                    int day = persianCalendar.GetDayOfMonth(DateTime.Now);
+                    string persianDate = $"{year}/{month:D2}/{day:D2}"; // Format: YYYY/MM/DD
+                }
+                تاریخ: @persianDate
             </div>
         </div>
         <div class="letter-content">
@@ -80,7 +89,6 @@
             <p><strong>نوضیحات:</strong> @Model.Description</p>
         </div>
         <div class="signature">
-            
             <img src="/logo/signature.png" alt="Signature" />
             <strong>:امضا</strong>
         </div>
