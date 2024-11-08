@@ -96,9 +96,9 @@ namespace Test.Controllers
                     new Word.Justification() { Val = Word.JustificationValues.Right },
                     new Word.SpacingBetweenLines() { Before = "240" }
                 ),
-                new Word.Run(new Word.Text($"شماره نامه: {letter.Id}")),
+                new Word.Run(new Word.Text($"شماره نامه  {letter.Id} : ")),
                 new Word.Run(new Word.Break()),
-                new Word.Run(new Word.Text($"تاریخ: {GetPersianDate()}"))
+                new Word.Run(new Word.Text($"تاریخ  {GetPersianDate()} : "))
             );
             headerTable.Elements<Word.TableRow>().First().Elements<Word.TableCell>().ElementAt(2).AppendChild(letterInfoParagraph);
 
@@ -129,7 +129,7 @@ namespace Test.Controllers
                     },
                     StyleRunProperties = new Word.StyleRunProperties()
                     {
-                        RunFonts = new Word.RunFonts() { Ascii = "Arial", ComplexScript = "Arial" },
+                        RunFonts = new Word.RunFonts() { Ascii = "B Nazanin", ComplexScript = "B Nazanin" },
                         FontSize = new Word.FontSize() { Val = "24" }
                     }
                 },
@@ -144,7 +144,7 @@ namespace Test.Controllers
                     },
                     StyleRunProperties = new Word.StyleRunProperties()
                     {
-                        RunFonts = new Word.RunFonts() { Ascii = "Arial", ComplexScript = "Arial" },
+                        RunFonts = new Word.RunFonts() { Ascii = "B Nazanin", ComplexScript = "B Nazanin" },
                         FontSize = new Word.FontSize() { Val = "32" },
                         Bold = new Word.Bold()
                     }
@@ -294,11 +294,10 @@ namespace Test.Controllers
         private void AddLetterDetails(Word.Body body, Letter letter)
         {
             var persianDate = GetPersianDate();
-            body.AppendChild(CreateParagraph($"شماره نامه: {letter.Id}", true));
-            body.AppendChild(CreateParagraph($"تاریخ: {persianDate}", true));
             body.AppendChild(CreateParagraph($"موضوع: {letter.Subject}", true));
             body.AppendChild(CreateParagraph($"از: {letter.Sender}", true));
             body.AppendChild(CreateParagraph($"به: {letter.Receiver}", true));
+            body.AppendChild(CreateParagraph($"کارشناس: {letter.CurrentOrganization}", true));
             body.AppendChild(CreateParagraph($"توضیحات: {letter.Description}", true));
         }
 
