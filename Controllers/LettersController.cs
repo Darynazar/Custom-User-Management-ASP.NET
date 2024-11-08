@@ -11,6 +11,12 @@ using Microsoft.AspNetCore.Authorization;
 using SelectPdf;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using DocumentFormat.OpenXml.Packaging;
+using DocumentFormat.OpenXml.Wordprocessing;
+using DocumentFormat.OpenXml;
+using HtmlToOpenXml;
+using System.Text;
+using System.IO;
 
 namespace Test.Controllers
 {
@@ -26,6 +32,41 @@ namespace Test.Controllers
             _context = context;
             _viewEngine = viewEngine;
             _serviceProvider = serviceProvider;
+        }
+
+
+        public async Task<IActionResult> ExportToWord(int id)
+        {
+            var letter = await _context.Letters
+                .Include(l => l.Category)
+                .Include(l => l.User)
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            if (letter == null)
+            {
+                return NotFound();
+            }
+
+            // Render the view to a string
+            var htmlContent = await RenderViewToStringAsync("OfficialLetter", letter);
+
+            // Convert HTML to Word
+            using (var stream = new MemoryStream())
+            {
+                using (WordprocessingDocument wordDocument = WordprocessingDocument.Create(stream, DocumentFormat.OpenXml.WordprocessingDocumentType.Document))
+                {
+                    MainDocumentPart mainPart = wordDocument.AddMainDocumentPart();
+                    mainPart.Document = new DocumentFormat.OpenXml.Wordprocessing.Document();
+                    var converter = new HtmlConverter(mainPart);
+                    var body = mainPart.Document.AppendChild(new DocumentFormat.OpenXml.Wordprocessing.Body());
+
+                    converter.ParseHtml(htmlContent);
+
+                    mainPart.Document.Save();
+                }
+
+                return File(stream.ToArray(), "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "OfficialLetter.docx");
+            }
         }
 
 
