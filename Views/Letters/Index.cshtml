@@ -92,7 +92,9 @@
                     <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
                     <a asp-action="Delete" asp-route-id="@item.Id">Delete</a> |
                     <a asp-action="ExportToPdf" asp-route-id="@item.Id">Export to PDF</a> |
-                     <a asp-action="Display" asp-route-id="@item.Id">Display</a>
+                     <a asp-action="Display" asp-route-id="@item.Id">Display</a> |
+
+                    <a asp-controller="Export" asp-action="ExportToWord" asp-route-id="@item.Id">Export as Word</a>
                 </td>
             </tr>
         }

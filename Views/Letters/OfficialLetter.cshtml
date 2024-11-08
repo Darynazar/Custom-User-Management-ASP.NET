@@ -1,4 +1,5 @@
-﻿@model Test.Models.Letter
+﻿@using System.Globalization
+@model Test.Models.Letter
 
 <!DOCTYPE html>
 <html>
@@ -8,6 +9,11 @@
             font-family: Arial, sans-serif;
         }
 
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
         .letterhead {
             display: flex;
             justify-content: space-between;
@@ -15,19 +21,28 @@
             margin-bottom: 20px;
         }
 
-        .letterhead img {
-            max-height: 100px;
-        }
+            .letterhead img {
+                max-height: 100px;
+            }
 
         .letter-content {
             margin: 0 20px;
+            direction: rtl;
         }
 
         .vertical-text {
-            writing-mode: vertical-rl;
-            transform: rotate(180deg);
             font-size: 12px;
         }
+
+        .signature {
+            text-align: left;
+            margin: 20px 20px;
+        }
+
+            .signature img {
+                max-height: 50px;
+                vertical-align: middle;
+            }
 
         .footer {
             text-align: center;
@@ -35,34 +50,51 @@
             font-size: 12px;
         }
 
-        .footer img {
-            max-width: 100%;
-            height: auto;
+            .footer img {
+                width: 100%;
+                height: auto;
+            }
+
+        .h2text {
+            text-align: center;
         }
     </style>
 </head>
 <body>
-    <div class="letterhead">
-        <img src="~/logo/logo.png" alt="Logo" />
-        <div>
-            <img src="~/logo/god_name.png" alt="God Name" />
+    <div class="container">
+        <div class="letterhead">
+            <img src="@(Context.Request.Scheme + "://" + Context.Request.Host + Url.Content("~/logo/logo.png"))" alt="Logo" />
+            <div>
+                <img src="@(Context.Request.Scheme + "://" + Context.Request.Host + Url.Content("~/logo/god_name.png"))" alt="God Name" />
+            </div>
+            <div class="vertical-text">
+                شماره نامه : @Model.Id<br />
+                @{
+                    PersianCalendar persianCalendar = new PersianCalendar();
+                    int year = persianCalendar.GetYear(DateTime.Now);
+                    int month = persianCalendar.GetMonth(DateTime.Now);
+                    int day = persianCalendar.GetDayOfMonth(DateTime.Now);
+                    string persianDate = $"{year}/{month:D2}/{day:D2}"; // Format: YYYY/MM/DD
+                }
+                تاریخ: @persianDate
+            </div>
         </div>
-        <div class="vertical-text">
-            Letter No: @Model.Id<br />
-            Date: @DateTime.Now.ToString("MMMM dd, yyyy")
+        <div class="letter-content">
+            <h2 class="h2text">@Model.Title</h2>
+            <p><strong>موضوع:</strong> @Model.Subject</p>
+            <p><strong>از:</strong> @Model.Sender</p>
+            <p><strong>به:</strong> @Model.Receiver</p>
+            <p><strong>کارشناس:</strong> @Model.CurrentOrganization</p>
+            <p><strong>نوضیحات:</strong> @Model.Description</p>
         </div>
-    </div>
-    <div class="letter-content">
-        <h2>@Model.Title</h2>
-        <p><strong>Subject:</strong> @Model.Subject</p>
-        <p><strong>From:</strong> @Model.Sender</p>
-        <p><strong>To:</strong> @Model.Receiver</p>
-        <p><strong>Organization:</strong> @Model.CurrentOrganization</p>
-        <p><strong>Description:</strong> @Model.Description</p>
-    </div>
-    <div class="footer">
-        <img src="~/logo/footer.png" alt="Footer" />
-        <p>Confidential</p>
+        <div class="signature">
+            <img src="@(Context.Request.Scheme + "://" + Context.Request.Host + Url.Content("~/logo/signature.png"))" alt="Signature" />
+            <strong>:امضا</strong>
+        </div>
+        <div class="footer">
+            <img src="@(Context.Request.Scheme + "://" + Context.Request.Host + Url.Content("~/logo/footer.png"))" alt="Footer" />
+            <p>Confidential</p>
+        </div>
     </div>
 </body>
 </html>
