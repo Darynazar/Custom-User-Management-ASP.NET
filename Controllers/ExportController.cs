@@ -151,7 +151,6 @@ namespace Test.Controllers
                 }
             );
         }
-
         private void AddImageToCell(MainDocumentPart mainPart, Word.TableCell cell, string imagePath, int width, int height)
         {
             var imagePart = mainPart.AddImagePart(ImagePartType.Png);
@@ -223,8 +222,6 @@ namespace Test.Controllers
             var paragraph = new Word.Paragraph(new Word.Run(element));
             body.AppendChild(paragraph);
         }
-
-
         private Word.Paragraph CreateBoldTitleParagraph(string text)
         {
             var paragraphProperties = new Word.ParagraphProperties(
@@ -240,33 +237,59 @@ namespace Test.Controllers
             var run = new Word.Run(runProperties, new Word.Text(text));
             return new Word.Paragraph(paragraphProperties, run);
         }
-
         private string GetPersianDate()
         {
             var persianCalendar = new PersianCalendar();
             var now = DateTime.Now;
             return $"{persianCalendar.GetYear(now)}/{persianCalendar.GetMonth(now):D2}/{persianCalendar.GetDayOfMonth(now):D2}";
         }
-
         // Helper method to create paragraphs with right alignment and RTL
         private Word.Paragraph CreateParagraph(string text, bool rightToLeft = false)
         {
-            var paragraph = new Word.Paragraph(
-                new Word.ParagraphProperties(
-                    new Word.Justification()
-                    {
-                        Val = rightToLeft ? Word.JustificationValues.Right : Word.JustificationValues.Left
-                    },
-                    new Word.BiDi()
-                    {
-                        Val = OnOffValue.FromBoolean(rightToLeft)
-                    }
-                ),
-                new Word.Run(new Word.Text(text))
-            );
-            return paragraph;
-        }
+            // Paragraph Properties
+            var paragraphProperties = new Word.ParagraphProperties();
+            if (rightToLeft)
+            { 
+                // Set BiDi for RTL
+                paragraphProperties.BiDi = new Word.BiDi() { Val = OnOffValue.FromBoolean(true) };
+                // Set text direction to Right to Left
+                paragraphProperties.TextDirection = new Word.TextDirection()
+                {
+                    Val = Word.TextDirectionValues.TopToBottomRightToLeft
+                };
+                // Ensure Right alignment
+                paragraphProperties.Justification = new Word.Justification()
+                {
+                    Val = Word.JustificationValues.Right
+                };
+                // Set the language (usually Arabic or Persian for RTL)
+                var lang = new Word.Languages() { Val = "ar-SA" }; // "ar-SA" for Arabic; "fa-IR" for Persian (Farsi)
+                paragraphProperties.Append(lang);
+            }
+            else
+            {
+                // Left alignment if not RTL
+                paragraphProperties.Justification = new Word.Justification()
+                {
+                    Val = Word.JustificationValues.Left
+                };
+            }
+            // Run Properties (applies to the text itself)
+            var runProperties = new Word.RunProperties();
+            if (rightToLeft)
+            {
+                // Set an RTL font (B Nazanin or any other font you need)
+                runProperties.Append(new Word.RunFonts() { Ascii = "B Nazanin", ComplexScript = "B Nazanin" });
+                // Apply BiDi to the run
+                runProperties.Append(new Word.BiDi() { Val = OnOffValue.FromBoolean(true) });
+            }
 
+            // Create the Run and Text objects
+            var run = new Word.Run(runProperties, new Word.Text(text));
+
+            // Return the paragraph with the run
+            return new Word.Paragraph(paragraphProperties, run);
+        }
         private void AddHeaderRow(MainDocumentPart mainPart, Word.Body body, string logoPath, string godNameImagePath, int letterId, string persianDate)
         {
             // Create a table for the header
@@ -288,9 +311,6 @@ namespace Test.Controllers
             AddImage(mainPart, body, logoPath, 100, 100);
             AddImage(mainPart, body, godNameImagePath, 100, 100);
         }
-
-
-
         private void AddLetterDetails(Word.Body body, Letter letter)
         {
             var persianDate = GetPersianDate();
@@ -300,9 +320,6 @@ namespace Test.Controllers
             body.AppendChild(CreateParagraph($"کارشناس: {letter.CurrentOrganization}", true));
             body.AppendChild(CreateParagraph($"توضیحات: {letter.Description}", true));
         }
-
-
-
         // Create a Title Paragraph with Spacing After
         private Word.Paragraph CreateTitleParagraph(string text)
         {
@@ -316,9 +333,5 @@ namespace Test.Controllers
             );
             return paragraph;
         }
-
-
-
-
     }
 }
