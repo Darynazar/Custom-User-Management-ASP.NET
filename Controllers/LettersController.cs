@@ -17,6 +17,7 @@ using DocumentFormat.OpenXml;
 using HtmlToOpenXml;
 using System.Text;
 using System.IO;
+using Microsoft.AspNetCore.Identity;
 
 namespace Test.Controllers
 {
@@ -26,12 +27,15 @@ namespace Test.Controllers
         private readonly ApplicationDbContext _context;
         private readonly ICompositeViewEngine _viewEngine;
         private readonly IServiceProvider _serviceProvider;
+        private readonly UserManager<IdentityUser> _userManager;
 
-        public LettersController(ApplicationDbContext context, ICompositeViewEngine viewEngine, IServiceProvider serviceProvider)
+        public LettersController(
+            ApplicationDbContext context, ICompositeViewEngine viewEngine, IServiceProvider serviceProvider, UserManager<IdentityUser> userManager)
         {
             _context = context;
             _viewEngine = viewEngine;
             _serviceProvider = serviceProvider;
+            _userManager = userManager;
         }
 
 
@@ -141,8 +145,16 @@ namespace Test.Controllers
         // GET: Letters
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Letters.Include(l => l.Category).Include(l => l.User);
-            return View(await applicationDbContext.ToListAsync());
+            var user = await _userManager.GetUserAsync(User);
+            var isAdmin = await _userManager.IsInRoleAsync(user, "Admin");
+
+            var letters = isAdmin
+                ? await _context.Letters.ToListAsync()
+                : await _context.Letters
+                    .Where(l => l.UserId == user.Id)
+                    .ToListAsync();
+
+            return View(letters);
         }
 
         // GET: Letters/Details/5
