@@ -63,7 +63,7 @@ namespace Test.Controllers
                     AddLetterDetails(body, letter);
 
                     // Add signature and footer
-                    AddImage(mainPart, body, "/logo/signature.png", 50, 50);
+                    AddSignature(mainPart, body);
                     AddFooter(mainPart, body, "/logo/footer.png", contentWidthTwips);
                 }
 
@@ -77,43 +77,48 @@ namespace Test.Controllers
                 new TableProperties(
                     new TableWidth { Type = TableWidthUnitValues.Dxa, Width = contentWidthTwips.ToString() },
                     new TableStyle { Val = "TableGrid" },
-                    new BiDi { Val = OnOffValue.FromBoolean(true) }
+                    new TableLook { FirstRow = true, LastRow = false, FirstColumn = true, LastColumn = false, NoHorizontalBand = false, NoVerticalBand = true }
                 ),
                 new TableRow(
-                    new TableCell(new Paragraph(new Run())),
-                    new TableCell(new Paragraph(new Run())),
-                    new TableCell(new Paragraph(new Run()))
+                    new TableCell(new Paragraph(new Run())), // Left cell for logo
+                    new TableCell(new Paragraph(new Run())), // Center cell for god_name
+                    new TableCell(new Paragraph(new Run()))  // Right cell for letter info
                 )
             );
 
-            // Add images and text in respective cells
-            AddImageToCell(mainPart, headerTable.Elements<TableRow>().First().Elements<TableCell>().ElementAt(2), "/logo/logo.png", 80, 80);
+            // Logo on the left
+            AddImageToCell(mainPart, headerTable.Elements<TableRow>().First().Elements<TableCell>().ElementAt(0), "/logo/logo.png", 80, 80);
+
+            // God name image in the center
             AddImageToCell(mainPart, headerTable.Elements<TableRow>().First().Elements<TableCell>().ElementAt(1), "/logo/god_name.png", 80, 80);
 
+            // Letter info on the right with RTL
             var letterInfoParagraph = new Paragraph(
                 new ParagraphProperties(
-                    new Justification { Val = JustificationValues.Right },
+                    new Justification { Val = JustificationValues.Left },
+                    new BiDi { Val = OnOffValue.FromBoolean(true) },
                     new SpacingBetweenLines { Before = "240" },
-                    new BiDi { Val = OnOffValue.FromBoolean(true) }
+                    new ParagraphMarkRunProperties(new RunProperties(new BiDi { Val = OnOffValue.FromBoolean(true) }))
                 ),
                 new Run(
                     new RunProperties(new BiDi { Val = OnOffValue.FromBoolean(true) }),
-                    new Text($"شماره نامه  {letter.Id} : ")
+                    new Text($"شماره نامه {letter.Id} : ")
                 ),
                 new Run(new Break()),
                 new Run(
                     new RunProperties(new BiDi { Val = OnOffValue.FromBoolean(true) }),
-                    new Text($"تاریخ  {GetPersianDate()} : ")
+                    new Text($"تاریخ {GetPersianDate()} : ")
                 )
             );
-            headerTable.Elements<TableRow>().First().Elements<TableCell>().ElementAt(0).AppendChild(letterInfoParagraph);
+            headerTable.Elements<TableRow>().First().Elements<TableCell>().ElementAt(2).AppendChild(letterInfoParagraph);
+
             return headerTable;
         }
 
         private void AddFooter(MainDocumentPart mainPart, Body body, string footerImagePath, int contentWidthTwips)
         {
             AddImage(mainPart, body, footerImagePath, contentWidthTwips / 1440 * 96, 100);
-            var footerParagraph = CreateParagraph("Confidential", false);
+            var footerParagraph = CreateParagraph("محرمانه", false);
             body.AppendChild(footerParagraph);
         }
 
@@ -264,11 +269,47 @@ namespace Test.Controllers
 
         private void AddLetterDetails(Body body, Letter letter)
         {
-            body.AppendChild(CreateParagraph($"موضوع: {letter.Subject}", true));
-            body.AppendChild(CreateParagraph($"از: {letter.Sender}", true));
-            body.AppendChild(CreateParagraph($"به: {letter.Receiver}", true));
-            body.AppendChild(CreateParagraph($"کارشناس: {letter.CurrentOrganization}", true));
-            body.AppendChild(CreateParagraph($"توضیحات: {letter.Description}", true));
+            body.AppendChild(CreateParagraph($"{letter.Subject}  : موضوع", true));
+            body.AppendChild(CreateParagraph($"{letter.Sender} : از", true));
+            body.AppendChild(CreateParagraph($"{letter.Receiver} : به", true));
+            body.AppendChild(CreateParagraph($"{letter.CurrentOrganization} : کارشناس", true));
+            body.AppendChild(CreateParagraph($"{letter.Description} : توضیحات", true));
+        }
+
+        private void AddSignature(MainDocumentPart mainPart, Body body)
+        {
+            // Add "Signature:" text
+            var signatureParagraph = new Paragraph(
+                new ParagraphProperties(
+                    new Justification { Val = JustificationValues.Left },
+                    new Indentation { Left = "800" }  // 20px padding (approx. 400 twips)
+                ),
+                new Run(
+                    new RunProperties(new Bold()),
+                    new Text(": امضا")
+                )
+            );
+            body.AppendChild(signatureParagraph);
+
+            // Create a new paragraph for the signature image with padding
+            var signatureImageParagraph = new Paragraph(
+                new ParagraphProperties(
+                    new Justification { Val = JustificationValues.Left },
+                    new Indentation { Left = "800" }  // 20px padding (approx. 400 twips)
+                )
+            );
+
+            var imagePart = mainPart.AddImagePart(ImagePartType.Png);
+            using (var imageStream = new FileStream($"wwwroot/logo/signature.png", FileMode.Open, FileAccess.Read))
+            {
+                imagePart.FeedData(imageStream);
+            }
+
+            var relationshipId = mainPart.GetIdOfPart(imagePart);
+            var element = CreateDrawingElement(relationshipId, 50, 50);
+
+            signatureImageParagraph.AppendChild(new Run(element));
+            body.AppendChild(signatureImageParagraph);
         }
     }
 }
