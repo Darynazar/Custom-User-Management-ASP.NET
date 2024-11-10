@@ -19,5 +19,5 @@ public class Category
 
     public virtual ICollection<Category> ChildCategories { get; set; } = new List<Category>();  // Collection for child categories
 
-    public ICollection<UserCategory> UserCategories { get; set; }
+    public ICollection<UserCategory>? UserCategories { get; set; }
 }
